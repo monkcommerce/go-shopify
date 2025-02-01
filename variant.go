@@ -31,8 +31,8 @@ type VariantServiceOp struct {
 	client *Client
 }
 
-// Variant represents a Shopify variant
-type Variant struct {
+// VariantCommonFields ...
+type VariantCommonFields struct {
 	ID                   int64            `json:"id,omitempty"`
 	ProductID            int64            `json:"product_id,omitempty"`
 	Title                string           `json:"title,omitempty"`
@@ -44,7 +44,7 @@ type Variant struct {
 	CompareAtPrice       *decimal.Decimal `json:"compare_at_price,omitempty"`
 	FulfillmentService   string           `json:"fulfillment_service,omitempty"`
 	InventoryManagement  string           `json:"inventory_management,omitempty"`
-	InventoryItemId      int64            `json:"inventory_item_id,omitempty"`
+	InventoryItemID      int64            `json:"inventory_item_id,omitempty"`
 	Option1              string           `json:"option1,omitempty"`
 	Option2              string           `json:"option2,omitempty"`
 	Option3              string           `json:"option3,omitempty"`
@@ -61,6 +61,33 @@ type Variant struct {
 	RequireShipping      bool             `json:"requires_shipping,omitempty"`
 	AdminGraphqlAPIID    string           `json:"admin_graphql_api_id,omitempty"`
 	Metafields           []Metafield      `json:"metafields,omitempty"`
+
+	// TODO: big commerce merge cleanup
+	BcOptionValues []BcOptionValues `json:"option_values,omitempty"`
+}
+
+// Variant represents a Shopify variant
+type Variant struct {
+	VariantCommonFields
+}
+
+// VariantWithContextualPrice ...
+type VariantWithContextualPrice struct {
+	VariantCommonFields
+	ContextualPrice          *decimal.Decimal `json:"contextual_price,omitempty"`
+	ContextualCompareAtPrice *decimal.Decimal `json:"contextual_compare_at_price,omitempty"`
+}
+
+// PriceWithCurrency ...
+type PriceWithCurrency struct {
+	Amount       *decimal.Decimal `json:"amount,omitempty"`
+	CurrencyCode string           `json:"currency_code,omitempty"`
+}
+
+// PresentmentPrice ...
+type PresentmentPrice struct {
+	Price          PriceWithCurrency  `json:"price,omitempty"`
+	CompareAtPrice *PriceWithCurrency `json:"compare_at_price,omitempty"`
 }
 
 // VariantResource represents the result from the variants/X.json endpoint

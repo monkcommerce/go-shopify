@@ -148,3 +148,42 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 
 	return HMACSame, nil
 }
+
+// GetOfflineAccessToken ...
+func (app App) GetOfflineAccessToken(shopName, sessionToken string) (string, error) {
+
+	type Token struct {
+		Token string `json:"access_token"`
+	}
+
+	var data = struct {
+		ClientID           string `json:"client_id"`
+		ClientSecret       string `json:"client_secret"`
+		SubjectToken       string `json:"subject_token"`
+		SubjecyTokenType   string `json:"subject_token_type"`
+		GrantType          string `json:"grant_type"`
+		RequestedTokenType string `json:"requested_token_type"`
+	}{
+		ClientID:           app.ApiKey,
+		ClientSecret:       app.ApiSecret,
+		SubjectToken:       sessionToken,
+		SubjecyTokenType:   "urn:ietf:params:oauth:token-type:id_token",
+		GrantType:          "urn:ietf:params:oauth:grant-type:token-exchange",
+		RequestedTokenType: "urn:shopify:params:oauth:token-type:offline-access-token",
+	}
+
+	client := app.Client
+	if client == nil {
+		client = NewClient(app, shopName, "")
+	}
+
+	req, err := client.NewRequest("POST", accessTokenRelPath, data, nil)
+	if err != nil {
+		return "", err
+	}
+
+	token := new(Token)
+	err = client.Do(req, token)
+	return token.Token, err
+
+}

@@ -75,6 +75,8 @@ type Client struct {
 
 	// A permanent access token
 	token string
+	// additional api features
+	apiFeatures string
 
 	// max number of retries, defaults to 0 for no retries see WithRetry option
 	retries  int
@@ -109,12 +111,12 @@ type Client struct {
 	StorefrontAccessToken      StorefrontAccessTokenService
 	Collect                    CollectService
 	Collection                 CollectionService
-	Location                   LocationService
 	DiscountCode               DiscountCodeService
 	PriceRule                  PriceRuleService
 	InventoryItem              InventoryItemService
 	ShippingZone               ShippingZoneService
 	ProductListing             ProductListingService
+	Currency                   CurrencyService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -225,7 +227,19 @@ func (c *Client) NewRequest(method, relPath string, body, options interface{}) (
 	} else if c.app.Password != "" {
 		req.SetBasicAuth(c.app.ApiKey, c.app.Password)
 	}
+	if c.token != "" {
+		req.Header.Add("X-Shopify-Api-Features", c.apiFeatures)
+	}
 	return req, nil
+}
+
+// SetAPIFeatures ...
+func (c *Client) SetAPIFeatures(features string) {
+	c.apiFeatures = features
+}
+
+func (c *Client) SetTimeout(timeout int) {
+	c.Client.Timeout = time.Second * time.Duration(timeout)
 }
 
 // NewClient returns a new Shopify API client with an already authenticated shopname and
@@ -283,12 +297,12 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.UsageCharge = &UsageChargeServiceOp{client: c}
 	c.Collect = &CollectServiceOp{client: c}
 	c.Collection = &CollectionServiceOp{client: c}
-	c.Location = &LocationServiceOp{client: c}
 	c.DiscountCode = &DiscountCodeServiceOp{client: c}
 	c.PriceRule = &PriceRuleServiceOp{client: c}
 	c.InventoryItem = &InventoryItemServiceOp{client: c}
 	c.ShippingZone = &ShippingZoneServiceOp{client: c}
 	c.ProductListing = &ProductListingServiceOp{client: c}
+	c.Currency = &CurrencyServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {

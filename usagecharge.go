@@ -3,7 +3,6 @@ package goshopify
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/shopspring/decimal"
 )
@@ -27,14 +26,15 @@ type UsageChargeServiceOp struct {
 
 // UsageCharge represents a Shopify UsageCharge.
 type UsageCharge struct {
-	BalanceRemaining *decimal.Decimal `json:"balance_remaining,omitempty"`
-	BalanceUsed      *decimal.Decimal `json:"balance_used,omitempty"`
-	BillingOn        *time.Time       `json:"billing_on,omitempty"`
-	CreatedAt        *time.Time       `json:"created_at,omitempty"`
-	Description      string           `json:"description,omitempty"`
-	ID               int64            `json:"id,omitempty"`
-	Price            *decimal.Decimal `json:"price,omitempty"`
-	RiskLevel        *decimal.Decimal `json:"risk_level,omitempty"`
+	BalanceRemaining       *decimal.Decimal `json:"balance_remaining,omitempty"`
+	BalanceUsed            *decimal.Decimal `json:"balance_used,omitempty"`
+	Description            string           `json:"description,omitempty"`
+	IdempotencyKey         string           `json:"idempotencyKey"`
+	ID                     int64            `json:"id,omitempty"`
+	Price                  *decimal.Decimal `json:"price,omitempty"`
+	CurrencyCode           string           `json:"currencyCode"`
+	SubscriptionLineItemID string           `json:"subscriptionLineItemId"`
+	RiskLevel              *decimal.Decimal `json:"risk_level,omitempty"`
 }
 
 func (r *UsageCharge) UnmarshalJSON(data []byte) error {
@@ -49,9 +49,6 @@ func (r *UsageCharge) UnmarshalJSON(data []byte) error {
 	}{alias: (*alias)(r)}
 
 	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-	if err := parse(&r.BillingOn, aux.BillingOn); err != nil {
 		return err
 	}
 	return nil

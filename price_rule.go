@@ -35,7 +35,7 @@ type PriceRule struct {
 	TargetType                             string                                  `json:"target_type,omitempty"`
 	TargetSelection                        string                                  `json:"target_selection,omitempty"`
 	AllocationMethod                       string                                  `json:"allocation_method,omitempty"`
-	AllocationLimit                        string                                  `json:"allocation_limit,omitempty"`
+	AllocationLimit                        interface{}                             `json:"allocation_limit,omitempty"`
 	OncePerCustomer                        bool                                    `json:"once_per_customer,omitempty"`
 	UsageLimit                             int                                     `json:"usage_limit,omitempty"`
 	StartsAt                               *time.Time                              `json:"starts_at,omitempty"`
@@ -147,7 +147,7 @@ func (pr *PriceRule) SetPrerequisiteToEntitlementQuantityRatio(prerequisiteQuant
 
 	pr.PrerequisiteToEntitlementQuantityRatio = &prerequisiteToEntitlementQuantityRatio{
 		PrerequisiteQuantity: pQuant,
-		EntitledQuantity: eQuant,
+		EntitledQuantity:     eQuant,
 	}
 }
 

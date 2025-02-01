@@ -30,28 +30,42 @@ type RecurringApplicationChargeServiceOp struct {
 
 // RecurringApplicationCharge represents a Shopify RecurringApplicationCharge.
 type RecurringApplicationCharge struct {
-	APIClientID           int64            `json:"api_client_id"`
-	ActivatedOn           *time.Time       `json:"activated_on"`
-	BalanceRemaining      *decimal.Decimal `json:"balance_remaining"`
-	BalanceUsed           *decimal.Decimal `json:"balance_used"`
-	BillingOn             *time.Time       `json:"billing_on"`
-	CancelledOn           *time.Time       `json:"cancelled_on"`
-	CappedAmount          *decimal.Decimal `json:"capped_amount"`
-	ConfirmationURL       string           `json:"confirmation_url"`
-	CreatedAt             *time.Time       `json:"created_at"`
-	DecoratedReturnURL    string           `json:"decorated_return_url"`
-	ID                    int64            `json:"id"`
-	Name                  string           `json:"name"`
-	Price                 *decimal.Decimal `json:"price"`
-	ReturnURL             string           `json:"return_url"`
-	RiskLevel             *decimal.Decimal `json:"risk_level"`
-	Status                string           `json:"status"`
-	Terms                 string           `json:"terms"`
-	Test                  *bool            `json:"test"`
-	TrialDays             int              `json:"trial_days"`
-	TrialEndsOn           *time.Time       `json:"trial_ends_on"`
-	UpdateCappedAmountURL string           `json:"update_capped_amount_url"`
-	UpdatedAt             *time.Time       `json:"updated_at"`
+	ConfirmationURL  string                   `json:"confirmation_url"`
+	ID               int64                    `json:"id"`
+	Name             string                   `json:"name"`
+	ReturnURL        string                   `json:"return_url"`
+	CurrencyCode     string                   `json:"currencyCode"`
+	Price            *decimal.Decimal         `json:"price"`
+	Interval         string                   `json:"interval"`
+	RecurringPricing *AppPlanRecurringPricing `json:"recurringPricing"`
+	CappedAmount     *decimal.Decimal         `json:"capped_amount"`
+	Terms            string                   `json:"terms"`
+	UsagePricing     *AppPlanUsagePricing     `json:"usagePricing"`
+	Status           string                   `json:"status"`
+	Test             *bool                    `json:"test"`
+	UpdatedAt        *time.Time               `json:"updated_at"`
+}
+
+// AppPlanRecurringPricing ... The pricing model input can be either appRecurringPricingDetails or appUsagePricingDetails.
+type AppPlanRecurringPricing struct {
+	AppRecurringPricingDetails struct {
+		Interval string     `json:"interval"`
+		Price    MoneyInput `json:"price"`
+	} `json:"appRecurringPricingDetails"`
+}
+
+// AppPlanUsagePricing ... The pricing model input can be either appRecurringPricingDetails or appUsagePricingDetails.
+type AppPlanUsagePricing struct {
+	AppUsagePricingDetails struct {
+		CappedAmount MoneyInput `json:"cappedAmount"`
+		Terms        string     `json:"terms"`
+	} `json:"appUsagePricingDetails"`
+}
+
+// MoneyInput ...
+type MoneyInput struct {
+	Amount       *decimal.Decimal `json:"amount"`
+	CurrencyCode string           `json:"currencyCode"`
 }
 
 func parse(dest **time.Time, data *string) error {
@@ -72,6 +86,7 @@ func parse(dest **time.Time, data *string) error {
 	return nil
 }
 
+// UnmarshalJSON ...
 func (r *RecurringApplicationCharge) UnmarshalJSON(data []byte) error {
 	// This is a workaround for the API returning incomplete results:
 	// https://ecommerce.shopify.com/c/shopify-apis-and-technology/t/-523203
@@ -91,21 +106,7 @@ func (r *RecurringApplicationCharge) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
 	}
-	if err := parse(&r.ActivatedOn, aux.ActivatedOn); err != nil {
-		return err
-	}
-	if err := parse(&r.BillingOn, aux.BillingOn); err != nil {
-		return err
-	}
-	if err := parse(&r.CancelledOn, aux.CancelledOn); err != nil {
-		return err
-	}
-	if err := parse(&r.CreatedAt, aux.CreatedAt); err != nil {
-		return err
-	}
-	if err := parse(&r.TrialEndsOn, aux.TrialEndsOn); err != nil {
-		return err
-	}
+
 	if err := parse(&r.UpdatedAt, aux.UpdatedAt); err != nil {
 		return err
 	}
